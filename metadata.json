@@ -1,0 +1,7 @@
+{
+  "name": "Kuber Enterprises",
+  "description": "Authorized dealer for Nezone & Kamdhenu iron and steel products in Kakching, Manipur.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}

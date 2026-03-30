@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+@theme {
+  --font-teko: "Teko", sans-serif;
+  --font-barlow: "Barlow", sans-serif;
+  
+  --color-rust: #C0392B;
+  --color-steel: #1a2332;
+  --color-steel-mid: #243447;
+  --color-iron: #2c3e50;
+  --color-gold: #D4A017;
+  --color-silver: #8a9bb0;
+  --color-accent: #E85D04;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Teko:wght@400;500;600;700&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap');
+
+body {
+  font-family: var(--font-barlow);
+  background: var(--color-steel);
+  color: #f0f4f8;
+  overflow-x: hidden;
+}
+
+/* Grain Overlay Effect */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: .35;
+}
+
+@layer utilities {
+  .text-shadow-glow {
+    text-shadow: 0 0 20px rgba(212, 160, 23, 0.3);
+  }
+}

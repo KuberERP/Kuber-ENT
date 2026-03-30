@@ -1,0 +1,94 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: inquiries
+    // Document ID: auto-generated
+    // Fields:
+    //   - name: string (required, 1-100 chars)
+    //   - email: string (optional, email format)
+    //   - phone: string (required, 1-20 chars)
+    //   - product: string (optional, 1-100 chars)
+    //   - message: string (required, 1-1000 chars)
+    //   - createdAt: timestamp (required)
+    //
+    // Collection: users
+    // Document ID: uid
+    // Fields:
+    //   - role: string (required, enum: ['admin', 'client'])
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "benisonsingh9@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidEmail(email) {
+      return email is string &&
+        email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidInquiry(data) {
+      return data.keys().hasAll(['name', 'phone', 'message', 'createdAt']) &&
+             data.keys().hasOnly(['name', 'phone', 'message', 'createdAt', 'email', 'product']) &&
+             data.name is string && data.name.size() >= 1 && data.name.size() <= 100 &&
+             data.phone is string && data.phone.size() >= 1 && data.phone.size() <= 20 &&
+             data.message is string && data.message.size() >= 1 && data.message.size() <= 1000 &&
+             data.createdAt is timestamp &&
+             (!('email' in data) || isValidEmail(data.email)) &&
+             (!('product' in data) || (data.product is string && data.product.size() <= 100));
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasOnly(['role']) &&
+             data.role in ['admin', 'client'];
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /inquiries/{inquiryId} {
+      // Hardened: Only allow creation by authenticated users with valid data
+      allow create: if isAuthenticated() && isValidInquiry(request.resource.data);
+      // Hardened: Only admins can read, update, or delete inquiries
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /users/{userId} {
+      // Hardened: Users can only read their own profile, admins can read all
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      
+      // Hardened: Users can only create their own profile as 'client'
+      // Admins can create any profile with any valid role
+      allow create: if isAuthenticated() && 
+                    isValidUser(request.resource.data) &&
+                    (
+                      (request.auth.uid == userId && request.resource.data.role == 'client') ||
+                      isAdmin()
+                    );
+      
+      // Hardened: Only admins can update or delete user profiles
+      allow update, delete: if isAdmin();
+    }
+
+    // Default deny
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}
