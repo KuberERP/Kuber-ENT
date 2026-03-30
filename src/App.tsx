@@ -23,7 +23,7 @@ import {
   getDocFromServer, 
   doc 
 } from 'firebase/firestore';
-import { signInAnonymously, onAuthStateChanged, User } from 'firebase/auth';
+import { onAuthStateChanged, User } from 'firebase/auth';
 import { db, auth } from './firebase';
 
 // --- Types & Error Handling ---
@@ -141,9 +141,8 @@ const FirebaseProvider = ({ children }: { children: ReactNode }) => {
     });
 
     // Sign in anonymously if not logged in to satisfy security rules
-    if (!auth.currentUser) {
-      signInAnonymously(auth).catch(err => console.error("Auth error:", err));
-    }
+    // Note: Anonymous auth must be enabled in Firebase Console.
+    // If disabled, this will fail with admin-restricted-operation.
 
     return () => unsubscribe();
   }, []);
@@ -584,7 +583,7 @@ const WhyUs = () => {
                 <strong className="text-white font-medium block mb-1">Phone</strong>
                 <p className="text-silver text-sm font-light">
                   <a href="tel:7628024273" className="hover:text-gold transition-colors">+91 76280 24273</a><br />
-                  <a href="tel:9863389703" className="hover:text-gold transition-colors">+91 98633 89703</a>
+                  <a href="tel:8798374317" className="hover:text-gold transition-colors">+91 87983 74317</a>
                 </p>
               </div>
             </div>
@@ -605,9 +604,14 @@ const WhyUs = () => {
             <a href="tel:7628024273" className="bg-rust hover:bg-accent text-white px-6 py-3 font-bold uppercase tracking-widest text-xs transition-all">
               📞 Call Us
             </a>
-            <a href="https://wa.me/917628024273" target="_blank" className="border border-white/20 hover:border-gold hover:text-gold text-white px-6 py-3 font-bold uppercase tracking-widest text-xs transition-all">
-              WhatsApp
-            </a>
+            <div className="flex gap-2">
+              <a href="https://wa.me/917628024273" target="_blank" className="border border-white/20 hover:border-gold hover:text-gold text-white px-4 py-3 font-bold uppercase tracking-widest text-[10px] transition-all">
+                WhatsApp 1
+              </a>
+              <a href="https://wa.me/918798374317" target="_blank" className="border border-white/20 hover:border-gold hover:text-gold text-white px-4 py-3 font-bold uppercase tracking-widest text-[10px] transition-all">
+                WhatsApp 2
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -737,17 +741,22 @@ const Contact = () => {
 
           <div className="space-y-6">
             {[
-              { icon: <Phone className="text-gold" />, title: 'Call Directly', content: '+91 76280 24273', sub: '+91 98633 89703' },
-              { icon: <MessageSquare className="text-gold" />, title: 'WhatsApp Us', content: 'Chat on WhatsApp', sub: 'Quick responses for quotes', link: 'https://wa.me/917628024273' },
+              { icon: <Phone className="text-gold" />, title: 'Call Directly', content: '+91 76280 24273', sub: '+91 87983 74317' },
+              { icon: <MessageSquare className="text-gold" />, title: 'WhatsApp Us', content: 'Chat on WhatsApp', sub: 'Available on both numbers', link: 'https://wa.me/917628024273' },
               { icon: <MapPin className="text-gold" />, title: 'Our Location', content: 'Burma - Sugnu Road, Irum Lamdong,', sub: 'Kakching, Manipur 795103' }
             ].map((detail, i) => (
               <div key={i} className="bg-white/5 border border-white/5 border-l-2 border-l-gold p-6 flex gap-6">
                 <div className="shrink-0">{detail.icon}</div>
                 <div>
                   <h4 className="font-teko text-xl font-bold text-white tracking-wide">{detail.title}</h4>
-                  <p className="text-silver text-sm font-light mt-1">
-                    {detail.link ? <a href={detail.link} target="_blank" className="text-gold hover:underline">{detail.content}</a> : detail.content}
-                  </p>
+                  <div className="text-silver text-sm font-light mt-1">
+                    {detail.link ? (
+                      <div className="flex gap-4">
+                        <a href="https://wa.me/917628024273" target="_blank" className="text-gold hover:underline">Number 1</a>
+                        <a href="https://wa.me/918798374317" target="_blank" className="text-gold hover:underline">Number 2</a>
+                      </div>
+                    ) : detail.content}
+                  </div>
                   <p className="text-silver/60 text-xs mt-0.5">{detail.sub}</p>
                 </div>
               </div>
@@ -786,7 +795,7 @@ const Footer = () => {
         <div className="flex gap-4 text-xs font-bold text-silver">
           <a href="tel:7628024273" className="text-gold hover:underline">76280 24273</a>
           <span className="opacity-20">|</span>
-          <a href="tel:9863389703" className="text-gold hover:underline">98633 89703</a>
+          <a href="tel:8798374317" className="text-gold hover:underline">87983 74317</a>
         </div>
       </div>
     </footer>

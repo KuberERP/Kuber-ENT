@@ -63,8 +63,8 @@ service cloud.firestore {
     // ===============================================================
 
     match /inquiries/{inquiryId} {
-      // Hardened: Only allow creation by authenticated users with valid data
-      allow create: if isAuthenticated() && isValidInquiry(request.resource.data);
+      // Allow public creation of inquiries for lead generation
+      allow create: if isValidInquiry(request.resource.data);
       // Hardened: Only admins can read, update, or delete inquiries
       allow read, update, delete: if isAdmin();
     }
